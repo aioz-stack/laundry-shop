@@ -53,7 +53,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         password,
         ...(AUTH_MODE === 'token' ? { device_name: navigator.userAgent.slice(0, 90) || 'web' } : {}),
       });
-      if (res.data.token) tokenStore.set(res.data.token);
+
+      if (AUTH_MODE === 'token') {
+        if (res.data.token) tokenStore.set(res.data.token);
+      } else if (res.data.token) {
+        // Cookie clients should never receive a bearer token. The server
+        // treated this as a token client because the request was not
+        // stateful, so no session cookie was created and every later API
+        // call would silently 401. Revoke the token and explain the fix.
+        await api
+          .post('/auth/logout', {}, { headers: { Authorization: `Bearer ${res.data.token}` } })
+          .catch(() => undefined);
+        throw new Error(
+          `The server did not start a browser session for "${window.location.host}". Add that host to SANCTUM_STATEFUL_DOMAINS (or set APP_URL to the public URL), then run "php artisan config:clear" on the server.`,
+        );
+      }
+
       setUser(res.data.data);
       await refreshSettings().catch(() => undefined);
       return res.data.data as User;

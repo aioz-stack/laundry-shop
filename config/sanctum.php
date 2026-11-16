@@ -18,12 +18,33 @@ return [
     |
     */
 
-    'stateful' => explode(',', env('SANCTUM_STATEFUL_DOMAINS', sprintf(
-        '%s%s',
-        'localhost,localhost:3000,127.0.0.1,127.0.0.1:8000,::1',
-        Sanctum::currentApplicationUrlWithPort(),
-        // Sanctum::currentRequestHost(),
-    ))),
+    'stateful' => (function (): array {
+        // Explicitly configured hosts first.
+        $hosts = array_filter(array_map(
+            'trim',
+            explode(',', (string) env(
+                'SANCTUM_STATEFUL_DOMAINS',
+                'localhost,localhost:3000,127.0.0.1,127.0.0.1:8000,::1'
+            ))
+        ));
+
+        // Always trust this application's own APP_URL host...
+        $appUrl = (string) env('APP_URL', 'http://localhost');
+        $appHost = parse_url($appUrl, PHP_URL_HOST);
+        $appPort = parse_url($appUrl, PHP_URL_PORT);
+
+        if ($appHost) {
+            $hosts[] = $appHost.($appPort ? ':'.$appPort : '');
+        }
+
+        // ...and the host of the current request. The built-in web app is
+        // served from the same origin as the API, so its requests must use
+        // session (cookie) auth even if the deployment forgot to list the
+        // production domain in SANCTUM_STATEFUL_DOMAINS.
+        $hosts[] = Sanctum::$currentRequestHostPlaceholder;
+
+        return array_values(array_unique($hosts));
+    })(),
 
     /*
     |--------------------------------------------------------------------------

@@ -22,6 +22,24 @@ test('a user can log in and receive a token for API clients', function () {
     $this->withToken($token)->getJson('/api/v1/auth/me')->assertOk()->assertJsonPath('data.username', 'operator');
 });
 
+test('a same-origin browser login creates a session instead of a token', function () {
+    $response = $this->withHeaders([
+        'Origin' => 'http://localhost',
+        'Referer' => 'http://localhost/login',
+        'Sec-Fetch-Site' => 'same-origin',
+    ])->postJson('/api/v1/auth/login', [
+        'username' => 'owner',
+        'password' => 'password',
+    ]);
+
+    $response->assertOk()
+        ->assertJsonMissingPath('token')
+        ->assertJsonPath('data.username', 'owner');
+
+    $this->assertAuthenticated();
+    $this->getJson('/api/v1/dashboard')->assertOk();
+});
+
 test('wrong credentials are rejected', function () {
     $this->postJson('/api/v1/auth/login', ['username' => 'operator', 'password' => 'nope', 'device_name' => 'x'])
         ->assertStatus(422)

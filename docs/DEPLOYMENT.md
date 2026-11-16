@@ -44,12 +44,18 @@ aaPanel → **Databases → Add database**: name `laundry_pos`, charset `utf8mb4
    DB_PASSWORD=...
    SANCTUM_STATEFUL_DOMAINS=pos.example.com
    FRONTEND_URL=https://pos.example.com
+   SESSION_DOMAIN=null
    SESSION_SECURE_COOKIE=true
    TRUSTED_PROXIES=127.0.0.1
    LOG_LEVEL=warning
    VITE_API_BASE_URL=/api/v1
    VITE_AUTH_MODE=cookie
    ```
+
+   `APP_URL`, `SANCTUM_STATEFUL_DOMAINS` and `FRONTEND_URL` must all use the
+   exact host you open in the browser (no trailing slash). If you change
+   `.env` after running `php artisan optimize`, run `php artisan config:clear`
+   (or `php artisan optimize` again) before retrying.
 4. Build the web app, then migrate and seed the core data. In production, `DemoSeeder` doesn't run.
    ```bash
    npm ci && npm run build
@@ -97,8 +103,10 @@ Set the document root to `public/`. The `.htaccess` file that ships with Laravel
 
 | Symptom | Fix |
 | --- | --- |
+| Login succeeds, then the app bounces back to `/login` | The API did not create a session. `SANCTUM_STATEFUL_DOMAINS` and `APP_URL` must contain the exact host you open (e.g. `kiara.example.com`). Run `php artisan config:clear`, then sign in again. If `POST /api/v1/auth/login` returns a `token` in the browser, cookie auth is not active. |
 | 401 right after a successful login | `SANCTUM_STATEFUL_DOMAINS` must list the host you open exactly (`pos.example.com`). |
 | 419 CSRF token mismatch | Clear cookies. Check that `SESSION_SECURE_COOKIE=true` is only set when the site is on HTTPS. |
+| Response has `Access-Control-Allow-Origin: http://localhost:8000` | The deployed `.env` still has local development values. Set `APP_URL` and `FRONTEND_URL` to the public HTTPS origin and run `php artisan config:clear`. |
 | Blank page, or "Vite manifest not found" | Run `npm run build`, and check that `public/build/manifest.json` exists. Delete `public/hot` if it was uploaded. |
 | Logo is uploaded but doesn't show | Run `php artisan storage:link`, and check that `APP_URL` is the public HTTPS URL. |
 | 500 errors | Check `storage/logs/laravel.log` and the storage permissions. |
