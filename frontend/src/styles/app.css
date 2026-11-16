@@ -1,0 +1,143 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+/*
+ * Laundry POS design tokens.
+ * Brand: deep "rinse" teal with a fresh aqua accent. Neutrals are a cool
+ * slate so white surfaces read clean without looking sterile.
+ */
+@theme {
+  --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  --color-brand-50: #ecfbfc;
+  --color-brand-100: #cff3f6;
+  --color-brand-200: #a3e6ed;
+  --color-brand-300: #67d1de;
+  --color-brand-400: #2cb3c6;
+  --color-brand-500: #1296ab;
+  --color-brand-600: #0e7890;
+  --color-brand-700: #0b5f73;
+  --color-brand-800: #0f4d5e;
+  --color-brand-900: #113f4e;
+  --color-brand-950: #062935;
+
+  --color-ink-50: #f6f7f9;
+  --color-ink-100: #eceef2;
+  --color-ink-200: #dde1e8;
+  --color-ink-300: #c3c9d4;
+  --color-ink-400: #98a1b2;
+  --color-ink-500: #6b7487;
+  --color-ink-600: #505869;
+  --color-ink-700: #3c4353;
+  --color-ink-800: #262b36;
+  --color-ink-900: #181c24;
+  --color-ink-950: #0e1117;
+
+  --shadow-card: 0 1px 2px 0 rgb(16 24 40 / 0.04), 0 1px 3px 0 rgb(16 24 40 / 0.04);
+  --shadow-pop: 0 12px 32px -8px rgb(16 24 40 / 0.18), 0 4px 8px -4px rgb(16 24 40 / 0.08);
+  --shadow-focus: 0 0 0 4px rgb(18 150 171 / 0.16);
+
+  --animate-fade-in: fade-in 160ms ease-out;
+  --animate-pop-in: pop-in 180ms cubic-bezier(0.2, 0.9, 0.3, 1.2);
+  --animate-slide-in: slide-in 220ms cubic-bezier(0.2, 0.8, 0.2, 1);
+
+  @keyframes fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  @keyframes pop-in {
+    from { opacity: 0; transform: translateY(6px) scale(0.98); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+  @keyframes slide-in {
+    from { opacity: 0; transform: translateX(16px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+}
+
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    @apply bg-ink-50 font-sans text-[14px] text-ink-800 dark:bg-ink-950 dark:text-ink-100;
+  }
+
+  ::selection {
+    @apply bg-brand-200 text-brand-950;
+  }
+
+  input[type='number']::-webkit-inner-spin-button,
+  input[type='number']::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  input[type='number'] {
+    -moz-appearance: textfield;
+  }
+
+  :focus-visible {
+    outline: none;
+  }
+}
+
+@layer components {
+  .card {
+    @apply rounded-2xl border border-ink-200/70 bg-white shadow-card dark:border-ink-800 dark:bg-ink-900;
+  }
+
+  .input {
+    @apply h-11 w-full rounded-xl border border-ink-200 bg-white px-3.5 text-[14px] text-ink-900 transition
+      placeholder:text-ink-400 hover:border-ink-300 focus:border-brand-500 focus:shadow-focus
+      disabled:cursor-not-allowed disabled:bg-ink-50 disabled:text-ink-400
+      dark:border-ink-700 dark:bg-ink-900 dark:text-ink-50 dark:hover:border-ink-600 dark:focus:border-brand-400 dark:disabled:bg-ink-800;
+  }
+
+  .input-lg {
+    @apply h-14 rounded-xl text-lg font-semibold;
+  }
+
+  .input-error {
+    @apply border-rose-400 focus:border-rose-500 focus:shadow-[0_0_0_4px_rgb(244_63_94/0.14)];
+  }
+
+  .label {
+    @apply mb-1.5 block text-[13px] font-semibold text-ink-700 dark:text-ink-300;
+  }
+
+  .eyebrow {
+    @apply text-[11px] font-bold uppercase tracking-[0.08em] text-ink-400 dark:text-ink-500;
+  }
+
+  .num {
+    font-variant-numeric: tabular-nums;
+  }
+
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-ink-300) transparent;
+  }
+
+  .no-scrollbar {
+    scrollbar-width: none;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* Print: only the receipt / report area. */
+@media print {
+  @page {
+    margin: 0;
+  }
+  body {
+    background: #fff !important;
+  }
+  .no-print {
+    display: none !important;
+  }
+}
