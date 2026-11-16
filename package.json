@@ -1,13 +1,11 @@
 {
-  "name": "laundry-pos-frontend",
+  "$schema": "https://www.schemastore.org/package.json",
   "private": true,
-  "version": "1.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
-    "typecheck": "tsc -b --noEmit",
-    "preview": "vite preview"
+    "build": "tsc --noEmit && vite build",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "apexcharts": "^4.7.0",
@@ -22,6 +20,8 @@
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.2.0",
     "@vitejs/plugin-react": "^5.2.0",
+    "concurrently": "^9.0.1",
+    "laravel-vite-plugin": "^2.0.0",
     "tailwindcss": "^4.3.5",
     "typescript": "~5.9.3",
     "vite": "^7.3.8"

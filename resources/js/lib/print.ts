@@ -4,8 +4,7 @@
  * swapped in later without touching the screens that call this.
  */
 export function openReceipt(orderId: number, autoPrint = true) {
-  const base = `${window.location.origin}${window.location.pathname}`;
-  const url = `${base}#/print/receipt/${orderId}${autoPrint ? '?autoprint=1' : ''}`;
+  const url = `${window.location.origin}/print/receipt/${orderId}${autoPrint ? '?autoprint=1' : ''}`;
   const win = window.open(url, `receipt-${orderId}`, 'width=420,height=760');
-  if (!win) window.location.hash = `#/print/receipt/${orderId}`;
+  if (!win) window.location.assign(url);
 }

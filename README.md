@@ -1,17 +1,13 @@
 # Laundry Shop POS & Management System
 
-Point of sale and shop management system for a small laundry business in the Philippines.
+Point of sale and shop management system for a small laundry business in the Philippines. It is **one Laravel 13 application** that contains two parts:
 
-| Folder | What it is |
-| --- | --- |
-| `backend/` | Laravel 13 API (`/api/v1`). Sanctum auth, MySQL/MariaDB. Every business rule and peso calculation runs here. |
-| `frontend/` | React 19 + TypeScript + Tailwind CSS 4 single-page app (Vite). It only talks to the API, so the build is plain static files. |
-| `docs/` | API reference and aaPanel deployment guide. |
+| Part | Where | What it is |
+| --- | --- | --- |
+| **API** | `routes/api.php`, `app/` | Versioned JSON API at `/api/v1` with Sanctum auth. Every business rule and peso calculation runs here. |
+| **Web app** | `resources/js/` | React 19 + TypeScript + Tailwind CSS 4, built by Laravel's Vite. Laravel serves it at `/` and it only talks to the API. |
 
-The frontend began from the **Baseplate React** template (`gitlab.com/czar.gaba/baseplate-react`). That template is actually a Laravel + Inertia app, and Inertia pages are rendered through Blade. To keep the API usable by future Capacitor and Electron apps, the project was split in two:
-
-- **backend/** is the template's Laravel 13 app with Inertia, Blade views and the CRUD demo removed. It keeps the template's Pest, Pint and Boost setup.
-- **frontend/** is a standalone SPA that carries over the template's useful parts: the theme context and `darkMode` storage key, the click-outside hook, the ApexCharts wrapper, the sidebar/header layout pattern and the Tailwind v4 token approach. Everything was then redesigned.
+The project started from the **Baseplate React** template (`gitlab.com/czar.gaba/baseplate-react`), a Laravel + Inertia + React app. Inertia was replaced with an API-first setup so the same API can later serve Capacitor (mobile) or Electron (desktop) apps. From the template, the web app keeps the theme context (same `darkMode` storage key), the click-outside hook, the ApexCharts wrapper, the sidebar/header layout pattern and the Tailwind v4 token approach. The interface itself was fully redesigned. The template's Pest, Pint and Laravel Boost setup is kept; its Boost guidelines now live in `.github/laravel-boost-guidelines.md`.
 
 ---
 
@@ -24,11 +20,9 @@ The frontend began from the **Baseplate React** template (`gitlab.com/czar.gaba/
 
 ## Local setup
 
-### 1. Backend
-
 ```bash
-cd backend
 composer install
+npm install
 cp .env.example .env
 php artisan key:generate
 ```
@@ -42,21 +36,14 @@ mysql -uroot -e "CREATE DATABASE laundry_pos CHARACTER SET utf8mb4 COLLATE utf8m
 ```bash
 php artisan migrate --seed
 php artisan storage:link
-php artisan serve --host=localhost --port=8000
+composer dev
 ```
 
-### 2. Frontend
+`composer dev` runs `php artisan serve`, the queue listener and the Vite dev server together. Open **http://localhost:8000**.
 
-```bash
-cd frontend
-npm install
-cp .env.example .env
-npm run dev
-```
+> Open the app on `localhost`, not `127.0.0.1`, unless you add that host to `SANCTUM_STATEFUL_DOMAINS`.
 
-Open **http://localhost:5173**.
-
-> Use `localhost` for both servers, not `127.0.0.1`. Sanctum cookie auth depends on matching hosts.
+Without hot reload, run `npm run build` once and then just `php artisan serve`.
 
 ### Default development accounts
 
@@ -77,45 +64,67 @@ Change these immediately in any shared or production environment (**Users** page
 
 ## Environment variables
 
-**backend/.env** (see `.env.example` for the full list)
+See `.env.example` for the full list.
 
 | Key | Purpose |
 | --- | --- |
-| `APP_URL` | Public URL of the API (used for logo URLs) |
+| `APP_URL` | Public URL of the app (used for logo URLs) |
 | `APP_TIMEZONE` | Defaults to `Asia/Manila` |
 | `DB_*` | Database connection |
-| `FRONTEND_URL` | Allowed CORS origin(s), comma-separated |
-| `SANCTUM_STATEFUL_DOMAINS` | Hosts that use cookie (SPA) auth. Must include the frontend `host:port` |
-| `SESSION_DOMAIN` | `null` locally; `.yourdomain.com` when the API and app are on subdomains |
+| `SANCTUM_STATEFUL_DOMAINS` | Hosts that use cookie (session) auth: the `host:port` you open the app on |
+| `SESSION_DOMAIN` | Leave `null` unless you know you need it |
+| `FRONTEND_URL` | Extra origins allowed to call the API from another domain (future mobile/desktop shells), comma-separated |
 | `SANCTUM_TOKEN_EXPIRATION` | Minutes before API tokens expire (blank = never) |
 | `TRUSTED_PROXIES` | Proxy IPs for correct HTTPS detection behind Nginx |
-
-**frontend/.env**
-
-| Key | Purpose |
-| --- | --- |
-| `VITE_API_BASE_URL` | e.g. `http://localhost:8000/api/v1`. Never hard-coded in the source |
-| `VITE_AUTH_MODE` | `cookie` (browser SPA) or `token` (Capacitor / Electron / a different domain) |
+| `VITE_API_BASE_URL` | Defaults to `/api/v1` (same origin). Never hard-coded in the source |
+| `VITE_AUTH_MODE` | `cookie` (default, session) or `token` (Bearer) |
 
 ## Commands
 
-| Where | Command | What it does |
-| --- | --- | --- |
-| backend | `php artisan serve` | API dev server |
-| backend | `php artisan test` | Run the Pest test suite (42 tests, in-memory SQLite) |
-| backend | `vendor/bin/pint` | Format PHP |
-| backend | `php artisan route:list --path=api` | List all API routes |
-| frontend | `npm run dev` | Vite dev server with hot reload |
-| frontend | `npm run typecheck` | TypeScript check |
-| frontend | `npm run build` | Production build into `frontend/dist/` |
+| Command | What it does |
+| --- | --- |
+| `composer dev` | Laravel server, queue and Vite with hot reload |
+| `npm run build` | Typecheck and build the web app into `public/build/` |
+| `npm run typecheck` | TypeScript check only |
+| `php artisan test` | Pest test suite (47 tests, in-memory SQLite) |
+| `vendor/bin/pint` | Format PHP |
+| `php artisan route:list --path=api` | List all API routes |
 
 ---
+
+## Project layout
+
+```
+app/
+  Enums/                  Role, Permission, OrderStatus, PaymentStatus, PricingType
+  Http/Controllers/Api/V1 API controllers
+  Http/Requests/          Form Request validation
+  Http/Resources/         API Resources (response shapes)
+  Models/                 Eloquent models
+  Services/               OrderService, PaymentService, PricingCalculator, ReportService, SequenceGenerator, ActivityLogger
+  Support/Money.php       exact centavo arithmetic
+database/                 migrations, factories, seeders (DatabaseSeeder, DemoSeeder)
+routes/api.php            /api/v1 endpoints
+routes/web.php            serves the web app shell for every non-API path
+resources/views/app.blade.php   HTML shell that mounts the React app
+resources/css/app.css     design tokens (Tailwind v4)
+resources/js/
+  lib/                    API client, auth context, types, formatting, hooks, toasts, theme
+  components/ui/          Button, Field/Input/Select/Toggle, Card/PageHeader/StatCard/Breadcrumbs,
+                          Badge/StatusBadge, Modal/ConfirmDialog, DataTable/Pagination/SearchInput,
+                          EmptyState/Loading/Alert, Chart
+  components/layout/      AppLayout, PosLayout, Sidebar, UserMenu, Brand
+  components/pos|orders|customers/   CustomerPicker, PaymentModal, StatusModal, OrderProgress…
+  pages/                  POS, Dashboard, Orders, Tracking, Customers, Payments, admin/*
+tests/                    Pest feature and unit tests
+docs/                     API reference, deployment guide
+```
 
 ## How it works
 
 ### Roles and permissions
 
-Permissions are defined once in `backend/app/Enums/Role.php` and `Permission.php`. Each permission is registered as a Laravel Gate and enforced on every route with `can:` middleware. The API sends the user's permissions to the frontend, but only so it can hide menu items. **The server never trusts the UI.**
+Permissions are defined once in `app/Enums/Role.php` and `Permission.php`. Each permission is registered as a Laravel Gate and enforced on every API route with `can:` middleware. The web app only uses the permission list to hide menu items. **The server never trusts the UI.**
 
 | | Owner | Desk Operator | Laundry Staff |
 | --- | :-: | :-: | :-: |
@@ -129,14 +138,14 @@ Permissions are defined once in `backend/app/Enums/Role.php` and `Permission.php
 ### Money and pricing
 
 - Every peso is stored as `DECIMAL(12,2)` and calculated in **integer centavos** (`app/Support/Money.php`). No floating point is ever used.
-- The POS sends **only service IDs and quantities**. `PricingCalculator` recalculates subtotal, discount, tax and total from current prices. The live totals on the POS come from `POST /orders/quote`, so the screen always shows exactly what will be saved.
+- The POS sends **only service IDs and quantities**. `PricingCalculator` recalculates subtotal, discount, tax and total from current prices. The live totals on the POS come from `POST /api/v1/orders/quote`, so the screen always shows exactly what will be saved.
 - Order items and add-ons store a **snapshot** of the name and price. Changing a price never alters past orders.
 - Services can have a minimum billable quantity (for example, 3 kg).
 
 ### Payments
 
 - One order can have many payments (cash, GCash, Maya, bank transfer or any method you add).
-- The amount paid, balance and payment status are **recomputed from the payment ledger** while the order row is locked. They are never simply incremented.
+- The amount paid, balance and payment status are **recomputed from the payment ledger** while the order row is locked.
 - Cash overpayment is recorded as tendered amount plus change. Only the balance counts as collected.
 - Non-cash payments can't exceed the balance and can require a reference number.
 - **Duplicate protection:** an idempotency key (one per POS draft or payment dialog), a `client_reference` on orders, and a 15-second identical-payment guard.
@@ -148,31 +157,16 @@ Permissions are defined once in `backend/app/Enums/Role.php` and `Permission.php
 
 - Steps can be skipped forward. Only the owner can move an order backward, and must give remarks.
 - Release is allowed only from *Ready for Pickup*, and, by default, only when the balance is zero (configurable).
-- Every change is written to `order_status_histories` (from, to, user, time, remarks). Important actions also go to `activity_logs`.
+- Every change is written to `order_status_histories`. Important actions also go to `activity_logs`.
 - Order numbers look like `LND-20261116-0001`. The counter is per day, uses a row lock, and the prefix and number of digits are configurable.
 
 ### Receipts
 
-`GET /orders/{id}/receipt` returns printer-agnostic receipt data. The SPA renders it as a 58 mm or 80 mm thermal layout and prints it from the browser. A future ESC/POS driver can use the same payload.
+`GET /api/v1/orders/{id}/receipt` returns printer-agnostic receipt data. The web app renders it at `/print/receipt/{id}` as a 58 mm or 80 mm thermal layout and prints it from the browser. A future ESC/POS driver can use the same payload.
 
 ### Ready for mobile and desktop clients
 
-- The API is versioned (`/api/v1`) and doesn't depend on the dashboard.
-- Login with `device_name` returns a Sanctum personal access token, and logout revokes it.
-- The SPA uses `HashRouter` and a relative `base`, so the build runs from any static host or `file://`. That covers Electron and Capacitor shells, which can set `VITE_AUTH_MODE=token`.
-
-## Frontend structure
-
-```
-frontend/src/
-  lib/            api client, auth context, types, formatting, hooks, toasts, theme
-  components/ui/  Button, Field/Input/Select/Toggle, Card/PageHeader/StatCard/Breadcrumbs,
-                  Badge/StatusBadge, Modal/ConfirmDialog, DataTable/Pagination/SearchInput,
-                  EmptyState/Loading/Alert, Chart
-  components/layout/  AppLayout, PosLayout, Sidebar, UserMenu, Brand
-  components/pos | orders | customers/  feature components (CustomerPicker, PaymentModal, OrderProgress…)
-  pages/          screens (POS, Orders, Tracking, Customers, Payments, admin/*)
-```
+The API is versioned and doesn't depend on the web app. Login with `device_name` returns a Sanctum personal access token, and logout revokes it. Add the shell's origin to `FRONTEND_URL` for CORS.
 
 Keyboard shortcuts: **F2** opens a new POS order from anywhere, **/** focuses customer search on the POS, **Ctrl+Enter** completes the order, and **Ctrl+K** opens the global order search.
 

@@ -8,7 +8,7 @@ There are two Sanctum modes, and both use the same endpoints:
 
 | Client | How |
 | --- | --- |
-| Browser SPA on a stateful domain | `GET /sanctum/csrf-cookie`, then `POST /auth/login` with the `X-XSRF-TOKEN` header and `withCredentials`. A session cookie is issued and no token is returned. |
+| Built-in web app (same origin) | `GET /sanctum/csrf-cookie`, then `POST /auth/login` with the `X-XSRF-TOKEN` header. A session cookie is issued and no token is returned. |
 | Mobile / desktop / scripts | `POST /auth/login` with `device_name`. The response includes `token`. Send `Authorization: Bearer {token}` on later requests. |
 
 | Method | Path | Notes |

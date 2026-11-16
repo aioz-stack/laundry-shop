@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { HashRouter, Navigate, Route, Routes, useLocation } from 'react-router';
+import { BrowserRouter, Navigate, Route, Routes, useLocation } from 'react-router';
 import { AuthProvider, P, useAuth } from './lib/auth';
 import { ThemeProvider } from './lib/theme';
 import { ToastProvider } from './lib/toast';
@@ -61,15 +61,15 @@ function GuestOnly({ children }: { children: ReactNode }) {
 }
 
 /**
- * HashRouter keeps deep links working on any static host (aaPanel without
- * rewrite rules) and inside Electron/Capacitor file:// shells.
+ * Laravel serves the app shell for every non-API path (routes/web.php), so
+ * clean URLs like /orders/12 keep working on refresh.
  */
 export function App() {
   return (
     <ThemeProvider>
       <ToastProvider>
         <AuthProvider>
-          <HashRouter>
+          <BrowserRouter>
             <Routes>
               <Route path="/login" element={<GuestOnly><LoginPage /></GuestOnly>} />
 
@@ -95,7 +95,7 @@ export function App() {
                 <Route path="*" element={<NotFoundPage />} />
               </Route>
             </Routes>
-          </HashRouter>
+          </BrowserRouter>
         </AuthProvider>
       </ToastProvider>
     </ThemeProvider>

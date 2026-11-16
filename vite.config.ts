@@ -1,11 +1,17 @@
 import { defineConfig } from 'vite';
+import laravel from 'laravel-vite-plugin';
 import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
 
 export default defineConfig({
-  plugins: [react(), tailwindcss()],
-  // Relative base so the build also works from file:// (Electron) or a sub-path.
-  base: './',
+  plugins: [
+    laravel({
+      input: ['resources/js/main.tsx'],
+      refresh: true,
+    }),
+    react(),
+    tailwindcss(),
+  ],
   build: {
     rollupOptions: {
       output: {
@@ -17,7 +23,8 @@ export default defineConfig({
     },
   },
   server: {
-    port: 5173,
-    strictPort: true,
+    watch: {
+      ignored: ['**/storage/framework/views/**'],
+    },
   },
 });
