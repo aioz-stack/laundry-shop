@@ -11,14 +11,13 @@ import { Mascot } from 'page-mascot';
  */
 export function CounterMascot({ size = 88 }: { size?: number }) {
   return (
-    <div className="no-print hidden flex-col items-center gap-1.5 sm:flex">
+    <div className="no-print hidden sm:flex">
       <Mascot
         directions="/mascots/fox-directions.webp"
         reactions="/mascots/fox-reactions.webp"
         size={size}
         label="counter fox"
       />
-      <span className="text-[10.5px] font-semibold tracking-[0.16em] text-ink-400 uppercase">Poke me</span>
     </div>
   );
 }
