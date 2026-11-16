@@ -15,8 +15,7 @@ use Illuminate\Database\Seeder;
  * Seeds the data every installation needs: accounts, services, add-ons,
  * payment methods and settings. Safe to run repeatedly.
  *
- * In the local environment it also loads DemoSeeder (sample customers and
- * two weeks of orders) so the dashboard and reports have real data.
+ * No customers, orders or payments are seeded: the shop starts empty.
  */
 class DatabaseSeeder extends Seeder
 {
@@ -33,10 +32,6 @@ class DatabaseSeeder extends Seeder
             'shop_phone' => '0917 123 4567',
             'shop_email' => 'hello@freshfold.test',
         ]);
-
-        if (app()->environment('local')) {
-            $this->call(DemoSeeder::class);
-        }
     }
 
     private function seedUsers(): void

@@ -57,10 +57,8 @@ Change these immediately in any shared or production environment (**Users** page
 
 ### Seed data
 
-- `php artisan migrate --seed` always seeds the core catalogue: the three accounts, six services, five add-ons, Cash/GCash/Maya/Bank Transfer and the shop settings. The seeder is safe to re-run.
-- When `APP_ENV=local`, it also runs `DemoSeeder`: 15 customers and two weeks of orders and payments, all created through the real order and payment services.
-- Reset everything: `php artisan migrate:fresh --seed`
-- Demo data only: `php artisan db:seed --class=DemoSeeder` (it skips itself if orders already exist)
+- `php artisan migrate --seed` seeds only the setup data: the three accounts, six services, five add-ons, Cash/GCash/Maya/Bank Transfer and the shop settings. No customers, orders or payments are seeded. The seeder is safe to re-run.
+- Reset everything (deletes all customers, orders and payments): `php artisan migrate:fresh --seed`
 
 ## Environment variables
 
@@ -103,7 +101,7 @@ app/
   Models/                 Eloquent models
   Services/               OrderService, PaymentService, PricingCalculator, ReportService, SequenceGenerator, ActivityLogger
   Support/Money.php       exact centavo arithmetic
-database/                 migrations, factories, seeders (DatabaseSeeder, DemoSeeder)
+database/                 migrations, factories, seeders (DatabaseSeeder)
 routes/api.php            /api/v1 endpoints
 routes/web.php            serves the web app shell for every non-API path
 resources/views/app.blade.php   HTML shell that mounts the React app

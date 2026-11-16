@@ -56,7 +56,7 @@ aaPanel → **Databases → Add database**: name `laundry_pos`, charset `utf8mb4
    exact host you open in the browser (no trailing slash). If you change
    `.env` after running `php artisan optimize`, run `php artisan config:clear`
    (or `php artisan optimize` again) before retrying.
-4. Build the web app, then migrate and seed the core data. In production, `DemoSeeder` doesn't run.
+4. Build the web app, then migrate and seed the core data.
    ```bash
    npm ci && npm run build
    php artisan migrate --force
