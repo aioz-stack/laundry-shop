@@ -261,8 +261,14 @@ export function PosPage() {
   const filledIndex = (key: string) => lines.filter((l) => Number(l.quantity) > 0).findIndex((l) => l.key === key);
 
   return (
-    <div className="mx-auto grid w-full max-w-[1500px] gap-6 px-4 py-6 sm:px-6 lg:grid-cols-[minmax(0,1fr)_420px] xl:grid-cols-[minmax(0,1fr)_460px]">
-      {/* LEFT: build the order */}
+    <div className="mx-auto w-full max-w-[1500px] px-4 py-6 sm:px-6">
+      {/* Counter companion sits above the two POS columns */}
+      <div className="mb-5 flex justify-center">
+        <CounterMascot size={168} />
+      </div>
+
+      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_420px] xl:grid-cols-[minmax(0,1fr)_460px]">
+        {/* LEFT: build the order */}
       <div className="space-y-5">
         <Section step={1} title="Customer" icon={null} aside={<span className="hidden text-[12px] text-ink-400 sm:block">Press <kbd className="rounded border border-ink-200 px-1 font-bold dark:border-ink-700">/</kbd> to search</span>}>
           <CustomerPicker ref={searchRef} value={customer} onChange={setCustomer} canRegister={can(P.CustomersManage)} onRegister={(prefill) => setRegistering(prefill)} />
@@ -583,9 +589,6 @@ export function PosPage() {
               )}
             </p>
 
-            <div className="border-t border-dashed border-ink-200 pt-3 dark:border-ink-700">
-              <CounterMascot />
-            </div>
           </div>
         </div>
       </aside>
@@ -665,7 +668,8 @@ export function PosPage() {
             </dl>
           </div>
         )}
-      </Modal>
+        </Modal>
+      </div>
     </div>
   );
 }
