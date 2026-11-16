@@ -32,6 +32,7 @@ import { Alert, Skeleton } from '../components/ui/Feedback';
 import { Modal } from '../components/ui/Modal';
 import { Segmented } from '../components/ui/DataTable';
 import { CustomerPicker } from '../components/pos/CustomerPicker';
+import { CounterMascot } from '../components/pos/CounterMascot';
 import { CustomerFormModal } from '../components/customers/CustomerFormModal';
 
 interface Line {
@@ -581,6 +582,10 @@ export function PosPage() {
                 </>
               )}
             </p>
+
+            <div className="border-t border-dashed border-ink-200 pt-3 dark:border-ink-700">
+              <CounterMascot />
+            </div>
           </div>
         </div>
       </aside>
